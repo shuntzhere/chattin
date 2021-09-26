@@ -7,13 +7,15 @@ import { MoreVert } from "@material-ui/icons";
 import * as EmailValidator from "email-validator";
 
 export const Sidebar = () => {
-  const input = prompt("Please enter the email address");
+  const createChat = () => {
+    const input = prompt("Please enter the email address");
 
-  if (!input) return null;
-
-  if (EmailValidator.validate(input)) {
-    //add that chat
-  }
+    if (!input) return null;
+    //check if chat exists already
+    if (EmailValidator.validate(input)) {
+      //add that chat
+    }
+  };
 
   return (
     <Container>
