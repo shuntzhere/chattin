@@ -8,14 +8,15 @@ import * as EmailValidator from "email-validator";
 import { auth, db } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection } from "react-firebase-hooks/firestore";
+import { Chat } from "./Chat";
 
 export const Sidebar = () => {
+  const [user] = useAuthState(auth);
   const userChatRef = db
     .collection("chats")
     .where("users", "array-contains", user.email);
   //comparing with the firestore database if the chat already exists
   const [chatsSnapshot] = useCollection(userChatRef);
-  const [user] = useAuthState(auth);
   //passing the local auth config
 
   const createChat = () => {
@@ -62,6 +63,11 @@ export const Sidebar = () => {
       </Search>
 
       <SidebarButton onClick={createChat}>Start a new chat</SidebarButton>
+
+      {/* Rendering list of chats */}
+      {chatsSnapshot?.docs.map((chat) => (
+        <Chat key={chat.id} id={chat.id} user={chat.data().users} />
+      ))}
     </Container>
   );
 };
