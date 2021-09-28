@@ -5,18 +5,42 @@ import ChatIcon from "@material-ui/Icons/chat";
 import SearchIcon from "@material-ui/Icons/search";
 import { MoreVert } from "@material-ui/icons";
 import * as EmailValidator from "email-validator";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useCollection } from "react-firebase-hooks/firestore";
 
 export const Sidebar = () => {
+  const userChatRef = db
+    .collection("chats")
+    .where("users", "array-contains", user.email);
+  //comparing with the firestore database if the chat already exists
+  const [chatsSnapshot] = useCollection(userChatRef);
+  const [user] = useAuthState(auth);
+  //passing the local auth config
+
   const createChat = () => {
     const input = prompt("Please enter the email address");
 
     if (!input) return null;
-    //check if chat exists already
-    if (EmailValidator.validate(input)) {
+
+    if (
+      //check if the specific chat already doesn't exists and is valid
+      EmailValidator.validate(input) &&
+      !chatAlreadyExists(input) &&
+      input !== user.email
+    ) {
       //add that chat
+      db.collection("chats").add({
+        users: [user.email, input],
+      });
     }
   };
+
+  const chatAlreadyExists = (recipientEmail) =>
+    !!chatsSnapshot?.docs.find(
+      (chat) =>
+        chat.data().users.find((user) => user === recipientEmail)?.length > 0
+    );
 
   return (
     <Container>
